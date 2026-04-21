@@ -1,31 +1,175 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <title>LA TV Shows | Home</title>
-    <meta name="description" content="A Catalog of Shows Set in Los Angeles" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rotation Index</title>
+    <meta
+      name="description"
+      content="A self-curated catalog of albums with searchable, filterable, sortable data."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
-    <script type="text/javascript" src="scripts.js"></script>
+    <script src="scripts.js" defer></script>
   </head>
-
   <body>
-    <header class="main-header">
-      <h1 class="title">LA TV Shows</h1>
-    </header>
-    <div id="card-container"></div>
-    <div class="card" style="display: none">
-      <div class="card-content">
-        <h2>TV Show Title</h2>
-        <img src="" alt="TV Show Poster" />
-        <ul>
-          <li>Bullet Point 1</li>
-          <li>Bullet Point 2</li>
-          <li>Bullet Point 3</li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer">
-      <button onclick="quoteAlert()">Get A Quote!</button>
-      <button onclick="removeLastCard()">Remove A Card!</button>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Snap Engineering Academy Project</p>
+          <h1>Rotation Index</h1>
+          <p class="hero-text">
+            A catalog of albums I keep coming back to, organized by mood,
+            genre, year, and the kind of energy they bring into a room.
+          </p>
+
+          <div class="hero-badges">
+            <span>Array of objects</span>
+            <span>Search + filter + sort</span>
+            <span>Save favorites</span>
+          </div>
+        </div>
+
+        <aside class="hero-panel">
+          <p class="panel-label">What makes this catalog useful</p>
+          <ul class="hero-list">
+            <li>Browse a substantial data set that is easy to inspect in the code.</li>
+            <li>Operate on the data with visible controls on the front page.</li>
+            <li>Update the data by saving albums into a personal shortlist.</li>
+          </ul>
+        </aside>
+      </header>
+
+      <main>
+        <section class="stats-grid" aria-label="Catalog summary">
+          <article class="stat-card">
+            <p class="stat-label">Albums in catalog</p>
+            <p class="stat-value" id="totalCount">0</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Currently visible</p>
+            <p class="stat-value" id="visibleCount">0</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Average rating</p>
+            <p class="stat-value" id="avgRating">0</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Saved picks</p>
+            <p class="stat-value" id="savedCount">0</p>
+          </article>
+        </section>
+
+        <section class="controls-section">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Data operations</p>
+              <h2>Find the right album fast</h2>
+            </div>
+            <p class="section-note" id="resultsMessage" aria-live="polite">
+              Showing all albums.
+            </p>
+          </div>
+
+          <div class="controls-grid">
+            <label class="control">
+              <span>Search title, artist, or standout track</span>
+              <input
+                type="search"
+                id="searchInput"
+                placeholder="Try: Frank, jazz, Nights..."
+                autocomplete="off"
+              />
+            </label>
+
+            <label class="control">
+              <span>Filter by genre</span>
+              <select id="genreSelect">
+                <option value="all">All genres</option>
+              </select>
+            </label>
+
+            <label class="control">
+              <span>Filter by mood</span>
+              <select id="moodSelect">
+                <option value="all">All moods</option>
+              </select>
+            </label>
+
+            <label class="control">
+              <span>Sort the catalog</span>
+              <select id="sortSelect">
+                <option value="featured">Featured picks</option>
+                <option value="rating-high">Highest rating</option>
+                <option value="year-new">Newest first</option>
+                <option value="year-old">Oldest first</option>
+                <option value="runtime-short">Shortest runtime</option>
+                <option value="title-az">Title A-Z</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="control-actions">
+            <button type="button" class="ghost-button" id="savedToggle">
+              Show saved only: Off
+            </button>
+            <button type="button" class="ghost-button" id="clearButton">
+              Clear all filters
+            </button>
+          </div>
+        </section>
+
+        <section class="spotlight-section" aria-labelledby="spotlightTitle">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Spotlight</p>
+              <h2 id="spotlightTitle">Current front-runner</h2>
+            </div>
+          </div>
+
+          <article class="spotlight-card" id="spotlightCard">
+            <div class="spotlight-visual" id="spotlightVisual">
+              <span class="spotlight-initials" id="spotlightInitials">MC</span>
+            </div>
+
+            <div class="spotlight-copy">
+              <p class="spotlight-label">Album to start with</p>
+              <h3 id="spotlightAlbum">Loading...</h3>
+              <p class="spotlight-meta" id="spotlightMeta"></p>
+              <p class="spotlight-description" id="spotlightDescription"></p>
+              <div class="spotlight-chips" id="spotlightChips"></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="catalog-section" aria-labelledby="catalogHeading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Catalog</p>
+              <h2 id="catalogHeading">Albums on rotation</h2>
+            </div>
+          </div>
+
+          <div class="empty-state" id="emptyState" hidden>
+            <h3>No albums matched those settings.</h3>
+            <p>Try clearing the filters or searching for a different artist, mood, or track.</p>
+          </div>
+
+          <div class="catalog-grid" id="catalogGrid"></div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>
+          Built with vanilla HTML, CSS, and JavaScript. Data set created by hand
+          from my own music taste so the catalog feels personal instead of generic.
+        </p>
+      </footer>
     </div>
   </body>
 </html>
