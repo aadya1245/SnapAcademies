@@ -46,7 +46,7 @@ I wanted the visual design to feel more editorial than template-based, so I used
 
 ## Data Source
 
-This is a manually curated data set based on albums I personally wanted to catalog, rather than a fetched API or pre-built external app. I also reviewed public student-friendly dataset references while planning, including the CORGIS dataset collection and the Snap starter repository.
+This is a manually curated data set based on albums I personally wanted to catalog, rather than a fetched API or pre-built external app. Album cover image URLs are referenced from public Wikipedia/Wikimedia album-art thumbnails inside `scripts.js`. I also reviewed public student-friendly dataset references while planning, including the CORGIS dataset collection and the Snap starter repository.
 
 ## Helpful Links
 
