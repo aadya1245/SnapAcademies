@@ -484,6 +484,15 @@ const albumCoverById = {
   24: "https://upload.wikimedia.org/wikipedia/en/thumb/8/8a/The_Weeknd_-_House_of_Balloons.png/250px-The_Weeknd_-_House_of_Balloons.png"
 };
 
+try {
+  const storedCatalog = JSON.parse(localStorage.getItem("rotation-index-catalog") || "null");
+  if (Array.isArray(storedCatalog) && storedCatalog.length) {
+    albumCatalog.splice(0, albumCatalog.length, ...storedCatalog);
+  }
+} catch {
+  // Keep the bundled catalog if locally saved data cannot be read.
+}
+
 const state = {
   search: "",
   genre: "all",
@@ -510,6 +519,13 @@ const spotlightAlbum = document.querySelector("#spotlightAlbum");
 const spotlightMeta = document.querySelector("#spotlightMeta");
 const spotlightDescription = document.querySelector("#spotlightDescription");
 const spotlightChips = document.querySelector("#spotlightChips");
+const addAlbumButton = document.querySelector("#addAlbumButton");
+const albumDialog = document.querySelector("#albumDialog");
+const closeAlbumDialog = document.querySelector("#closeAlbumDialog");
+const saveAlbumButton = document.querySelector("#saveAlbumButton");
+const deleteAlbumButton = document.querySelector("#deleteAlbumButton");
+const catalogToast = document.querySelector("#catalogToast");
+let editingAlbumId = null;
 
 function getInitials(title) {
   return title
@@ -523,12 +539,18 @@ function getInitials(title) {
 }
 
 function getCoverImage(albumId) {
-  return albumCoverById[albumId] || "";
+  const album = albumCatalog.find((item) => item.id === albumId);
+  return album?.coverUrl || albumCoverById[albumId] || "";
 }
 
 function populateFilters() {
+  const selectedGenre = state.genre;
+  const selectedMood = state.mood;
   const genres = [...new Set(albumCatalog.map((album) => album.genre))].sort();
   const moods = [...new Set(albumCatalog.map((album) => album.mood))].sort();
+
+  genreSelect.innerHTML = '<option value="all">All genres</option>';
+  moodSelect.innerHTML = '<option value="all">All moods</option>';
 
   genres.forEach((genre) => {
     genreSelect.insertAdjacentHTML(
@@ -543,6 +565,8 @@ function populateFilters() {
       `<option value="${mood}">${mood}</option>`
     );
   });
+  genreSelect.value = genres.includes(selectedGenre) ? selectedGenre : "all";
+  moodSelect.value = moods.includes(selectedMood) ? selectedMood : "all";
 }
 
 function getProcessedAlbums() {
@@ -647,14 +671,15 @@ function updateSpotlight(album) {
   }
 
   spotlightVisual.style.background = `linear-gradient(135deg, ${album.colors.start}, ${album.colors.end})`;
-  spotlightVisual.classList.add("has-cover");
-  spotlightVisual.innerHTML = `
+  const coverImage = getCoverImage(album.id);
+  spotlightVisual.classList.toggle("has-cover", Boolean(coverImage));
+  spotlightVisual.innerHTML = coverImage ? `
     <img
       class="spotlight-cover"
-      src="${getCoverImage(album.id)}"
+      src="${coverImage}"
       alt="${album.title} album cover"
     />
-  `;
+  ` : `<span class="spotlight-initials">${getInitials(album.title)}</span>`;
   spotlightAlbum.textContent = album.title;
   spotlightMeta.textContent = `${album.artist} • ${album.year} • ${album.genre} • ${album.rating.toFixed(1)}/10`;
   spotlightDescription.textContent = album.note;
@@ -666,18 +691,21 @@ function updateSpotlight(album) {
 }
 
 function createAlbumCard(album, index) {
+  const coverImage = getCoverImage(album.id);
   return `
     <article
       class="catalog-card"
       style="--card-start: ${album.colors.start}; --card-end: ${album.colors.end}; animation-delay: ${index * 40}ms;"
     >
-      <div class="catalog-visual has-cover">
+      <div class="catalog-visual ${coverImage ? "has-cover" : ""}">
+        ${coverImage ? `
         <img
           class="catalog-cover"
-          src="${getCoverImage(album.id)}"
+          src="${coverImage}"
           alt="${album.title} album cover"
           loading="lazy"
         />
+        ` : `<span class="catalog-initials">${getInitials(album.title)}</span>`}
       </div>
 
       <div class="catalog-body">
@@ -712,6 +740,7 @@ function createAlbumCard(album, index) {
         <div class="card-actions">
           <p><strong>Standout track:</strong> ${album.standoutTrack}</p>
           <p><strong>Runtime:</strong> ${album.runtime} min</p>
+          <button type="button" class="edit-button" data-edit-id="${album.id}">Edit</button>
         </div>
       </div>
     </article>
@@ -779,6 +808,12 @@ clearButton.addEventListener("click", () => {
 catalogGrid.addEventListener("click", (event) => {
   const clickedButton = event.target.closest(".save-button");
 
+  const editButton = event.target.closest(".edit-button");
+  if (editButton) {
+    openAlbumEditor(Number(editButton.dataset.editId));
+    return;
+  }
+
   if (!clickedButton) {
     return;
   }
@@ -791,8 +826,89 @@ catalogGrid.addEventListener("click", (event) => {
   }
 
   selectedAlbum.saved = !selectedAlbum.saved;
+  saveCatalog();
   renderCatalog();
 });
+
+function saveCatalog() {
+  localStorage.setItem("rotation-index-catalog", JSON.stringify(albumCatalog));
+}
+
+function openAlbumEditor(albumId = null) {
+  editingAlbumId = albumId;
+  const album = albumCatalog.find((item) => item.id === albumId);
+  document.querySelector("#albumDialogTitle").textContent = album ? "Edit album" : "Add an album";
+  document.querySelector("#albumTitleInput").value = album?.title || "";
+  document.querySelector("#albumArtistInput").value = album?.artist || "";
+  document.querySelector("#albumYearInput").value = album?.year || new Date().getFullYear();
+  document.querySelector("#albumGenreInput").value = album?.genre || "";
+  document.querySelector("#albumMoodInput").value = album?.mood || "";
+  document.querySelector("#albumRatingInput").value = album?.rating || 8;
+  document.querySelector("#albumRuntimeInput").value = album?.runtime || 45;
+  document.querySelector("#albumTrackInput").value = album?.standoutTrack || "";
+  document.querySelector("#albumNoteInput").value = album?.note || "";
+  document.querySelector("#albumTagsInput").value = album?.tags?.join(", ") || "";
+  deleteAlbumButton.hidden = !album;
+  albumDialog.showModal();
+}
+
+function saveAlbum() {
+  const title = document.querySelector("#albumTitleInput").value.trim();
+  const artist = document.querySelector("#albumArtistInput").value.trim();
+  if (!title || !artist) {
+    showCatalogToast("Add both an album title and artist.");
+    return;
+  }
+  const existing = albumCatalog.find((item) => item.id === editingAlbumId);
+  const record = {
+    id: existing?.id || Math.max(0, ...albumCatalog.map((item) => item.id)) + 1,
+    title,
+    artist,
+    year: Number(document.querySelector("#albumYearInput").value),
+    genre: document.querySelector("#albumGenreInput").value.trim() || "Other",
+    mood: document.querySelector("#albumMoodInput").value.trim() || "Mixed",
+    rating: Number(document.querySelector("#albumRatingInput").value),
+    runtime: Number(document.querySelector("#albumRuntimeInput").value),
+    standoutTrack: document.querySelector("#albumTrackInput").value.trim() || "Not selected",
+    note: document.querySelector("#albumNoteInput").value.trim() || "Added to my personal rotation.",
+    tags: document.querySelector("#albumTagsInput").value.split(",").map((tag) => tag.trim()).filter(Boolean),
+    colors: existing?.colors || { start: "#375f65", end: "#cb6d4e", accent: "#fff1dc" },
+    saved: existing?.saved || false,
+    coverUrl: existing?.coverUrl || ""
+  };
+  if (existing) Object.assign(existing, record);
+  else albumCatalog.unshift(record);
+  saveCatalog();
+  populateFilters();
+  resetControls();
+  renderCatalog();
+  albumDialog.close();
+  showCatalogToast(existing ? "Album updated." : "Album added to your catalog.");
+}
+
+function deleteAlbum() {
+  const index = albumCatalog.findIndex((item) => item.id === editingAlbumId);
+  if (index < 0) return;
+  albumCatalog.splice(index, 1);
+  saveCatalog();
+  populateFilters();
+  resetControls();
+  renderCatalog();
+  albumDialog.close();
+  showCatalogToast("Album removed from your catalog.");
+}
+
+function showCatalogToast(message) {
+  catalogToast.textContent = message;
+  catalogToast.classList.add("show");
+  clearTimeout(window.catalogToastTimer);
+  window.catalogToastTimer = setTimeout(() => catalogToast.classList.remove("show"), 2500);
+}
+
+addAlbumButton.addEventListener("click", () => openAlbumEditor());
+closeAlbumDialog.addEventListener("click", () => albumDialog.close());
+saveAlbumButton.addEventListener("click", saveAlbum);
+deleteAlbumButton.addEventListener("click", deleteAlbum);
 
 populateFilters();
 resetControls();

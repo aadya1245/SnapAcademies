@@ -45,9 +45,56 @@ img {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
+
+.add-album-button {
+  background: var(--ink);
+  color: white;
+}
+
+.edit-button {
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.catalog-initials {
+  position: relative;
+  z-index: 1;
+  color: white;
+  font-family: "Instrument Serif", serif;
+  font-size: 3rem;
+}
+
+dialog {
+  width: min(760px, calc(100% - 30px));
+  border: 0;
+  border-radius: 28px;
+  padding: 30px;
+  background: var(--bg-alt);
+  box-shadow: 0 30px 90px rgba(25, 21, 17, 0.3);
+}
+
+dialog::backdrop { background: rgba(25, 21, 17, 0.68); }
+.dialog-close { float: right; border: 0; background: transparent; font-size: 1.7rem; cursor: pointer; }
+.album-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+.album-form label { color: var(--muted); font-size: .85rem; }
+.album-form input,.album-form textarea { display: block; width: 100%; margin-top: 6px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+.album-form textarea { min-height: 90px; resize: vertical; }
+.wide-field { grid-column: 1 / -1; }
+.dialog-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 22px; }
+.save-album-button,.delete-album-button { border: 0; border-radius: 12px; padding: 12px 18px; cursor: pointer; }
+.save-album-button { margin-left: auto; background: var(--ink); color: white; }
+.delete-album-button { background: #f6ddd5; color: #8d3521; }
+.catalog-toast { position: fixed; z-index: 20; right: 24px; bottom: 24px; padding: 14px 18px; border-radius: 12px; background: var(--ink); color: white; transform: translateY(100px); transition: transform .25s ease; }
+.catalog-toast.show { transform: none; }
+
+@media (max-width: 620px) { .album-form { grid-template-columns: 1fr; } .wide-field { grid-column: auto; } }
 
 .page-shell {
   width: min(calc(100% - 32px), var(--max-width));

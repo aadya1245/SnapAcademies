@@ -115,6 +115,9 @@
           </div>
 
           <div class="control-actions">
+            <button type="button" class="ghost-button add-album-button" id="addAlbumButton">
+              + Add an album
+            </button>
             <button type="button" class="ghost-button" id="savedToggle">
               Show saved only: Off
             </button>
@@ -171,5 +174,24 @@
         </p>
       </footer>
     </div>
+    <dialog id="albumDialog">
+      <button type="button" class="dialog-close" id="closeAlbumDialog" aria-label="Close">×</button>
+      <p class="section-kicker">YOUR CATALOG</p>
+      <h2 id="albumDialogTitle">Add an album</h2>
+      <div class="album-form">
+        <label>Album title<input id="albumTitleInput" placeholder="Album title" /></label>
+        <label>Artist<input id="albumArtistInput" placeholder="Artist" /></label>
+        <label>Year<input id="albumYearInput" type="number" min="1900" max="2100" value="2026" /></label>
+        <label>Genre<input id="albumGenreInput" placeholder="Hip-Hop, Jazz, R&B..." /></label>
+        <label>Mood<input id="albumMoodInput" placeholder="Reflective, Warm, Driven..." /></label>
+        <label>Rating<input id="albumRatingInput" type="number" min="0" max="10" step="0.1" value="8.0" /></label>
+        <label>Runtime in minutes<input id="albumRuntimeInput" type="number" min="1" value="45" /></label>
+        <label>Standout track<input id="albumTrackInput" placeholder="Favorite track" /></label>
+        <label class="wide-field">Your note<textarea id="albumNoteInput" placeholder="Why does this album belong in your rotation?"></textarea></label>
+        <label class="wide-field">Tags, separated by commas<input id="albumTagsInput" placeholder="late-night, layered, energetic" /></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="delete-album-button" id="deleteAlbumButton" hidden>Delete album</button><button type="button" class="save-album-button" id="saveAlbumButton">Save album</button></div>
+    </dialog>
+    <div class="catalog-toast" id="catalogToast" role="status"></div>
   </body>
 </html>

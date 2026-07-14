@@ -13,6 +13,8 @@ This project is centered around a topic I genuinely care about: albums that shap
 - Filter by mood
 - Sort by rating, year, runtime, or title
 - Save albums into a shortlist and view only saved items
+- Add, edit, and remove albums from the catalog
+- Preserve catalog changes and saved favorites in the browser
 - Spotlight panel that updates based on the current results
 - Responsive card layout for desktop and mobile
 
